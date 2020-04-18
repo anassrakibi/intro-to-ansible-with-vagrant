@@ -1,0 +1,17 @@
+---
+-
+    name: Ensure our system is up to date and all basic requirements fit
+    hosts: acme
+    become: true
+    tasks:
+        -   name: Update package manager cache
+            apt:
+                cache_valid_time: 300
+                update_cache: yes
+        -   name: Ensure base packages are installed
+            apt:
+                name:
+                    - unzip
+                    - htop
+                    - vim
+    

@@ -1,0 +1,54 @@
+---
+-
+    hosts: acme
+    become: yes
+    roles:
+        - jdauphant.ssl-certs
+    vars:
+        ssl_certs_common_name: "acme.local"
+        ssl_certs_country: "DE"
+        ssl_certs_locality: "Cologne"
+        ssl_certs_organization: "acme"
+        ssl_certs_state: "NRW"
+        ssl_certs_email: "local@acme.local"
+        ssl_certs_days: "365"
+-
+    hosts: acme
+    roles:
+        - geerlingguy.nginx
+    vars:
+        nginx_vhosts:
+            -
+                listen: "80"
+                server_name: "acme.local"
+                return: "301 https://acme.local$request_uri"
+                filename: "acme.local.80.conf"
+            -
+                listen: "443 ssl"
+                server_name: "acme.local"
+                filename: "acme.local.443.conf"
+                index: "index.php index.html"
+                access_log: "/var/log/nginx/acme.local_ssl_access.log"
+                error_log: "/var/log/nginx/acme.local_ssl_error.log"
+                root: "/var/www/acme/public"
+                extra_parameters: |
+                    location / {
+                        try_files $uri $uri/ /index.php?$query_string;
+                    }
+
+                    location ~ \.php$ {
+                        fastcgi_pass 127.0.0.1:9000;
+                        fastcgi_index index.php;
+                        fastcgi_split_path_info ^(.+\.php)(/.*)$;
+                        include fastcgi_params;
+                        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                    }
+
+                    location ~ /\.ht {
+                        deny all;
+                    }
+
+                    ssl_certificate     /etc/ssl/acme.local/acme.local.pem;
+                    ssl_certificate_key /etc/ssl/acme.local/acme.local.key;
+                    ssl_protocols       TLSv1.1 TLSv1.2;
+                    ssl_ciphers         HIGH:!aNULL:!MD5;

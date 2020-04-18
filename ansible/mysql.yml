@@ -1,0 +1,18 @@
+---
+-
+    hosts: acme
+    roles:
+        - geerlingguy.mysql
+    vars:
+        mysql_user_home: /root
+        mysql_user_name: root
+        mysql_user_password: root
+        mysql_enabled_on_startup: true
+        mysql_databases:
+            - name: acme
+            - name: test_acme
+        mysql_users:
+            - name: acme
+              host: "%"
+              password: secret
+              priv: "acme.*:ALL/test_acme.*:ALL"

@@ -1,0 +1,9 @@
+---
+-
+    import_playbook: system.yml
+-
+    import_playbook: php.yml
+-
+    import_playbook: mysql.yml
+-
+    import_playbook: nginx.yml
